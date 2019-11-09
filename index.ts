@@ -59,7 +59,8 @@ app.post("/signup", (req, res) => {
 
 app.get("/check", checkToken, (req, res) => {
   const decoded = req.decoded;
-  res.json(decoded);
+  const email:string = decoded.email;
+  res.json([email, decoded]);
 });
 
 app.listen(process.env.PORT || 3001);
