@@ -35,17 +35,20 @@ router.post("/signup", (req, res) => {
     var password: string = req.body.password;
     var newsletter: boolean = req.body.newsletter === "true";
     // if email and password are incomplete, then return an error code 419 MISSING ARGUMENTS
-    db("users").insert({
+    db.insert({
       email: userEmail,
       password: password,
       newsletter: newsletter,
       is_advisor: false
-    });
+    }).into('users')
+    // .then(data => res.send(data));
+
     db.select()
     .from("users")
     .then(rows => {
       res.send(rows);
     })
+
     // res.send(
     //   userEmail +
     //     "_" +
