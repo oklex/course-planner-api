@@ -1,8 +1,8 @@
-// import express
-import * as express from "express";
-import * as bodyParser from "body-parser";
+const express = require('express')
+const bodyParser = require("body-parser")
 import * as dotenv from "dotenv";
 import apiRoute from "./routers";
+import knex from './database/knex'
 
 dotenv.config();
 
@@ -24,3 +24,4 @@ app.get("/", (req, res) => {
 });
 
 app.listen(process.env.PORT || 3001);
+knex.migrate.latest()

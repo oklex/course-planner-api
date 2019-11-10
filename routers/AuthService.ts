@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import checkToken from "../middleware/AuthMiddleware";
-import knex from "../Database/config/knex";
+import db from "../database/knex";
 
 dotenv.config();
 const router = Router();
@@ -35,20 +35,25 @@ router.post("/signup", (req, res) => {
     var password: string = req.body.password;
     var newsletter: boolean = req.body.newsletter === "true";
     // if email and password are incomplete, then return an error code 419 MISSING ARGUMENTS
-    knex("users").insert({
+    db("users").insert({
       email: userEmail,
       password: password,
       newsletter: newsletter,
       is_advisor: false
     });
-    res.send(
-      userEmail +
-        "_" +
-        password +
-        "_" +
-        newsletter.toString() +
-        " this should be an error or success code"
-    );
+    db.select()
+    .from("users")
+    .then(rows => {
+      res.send(rows);
+    })
+    // res.send(
+    //   userEmail +
+    //     "_" +
+    //     password +
+    //     "_" +
+    //     newsletter.toString() +
+    //     " this should be an error or success code"
+    // );
   } catch (err) {
     res.status(400).send("bad request", err);
   }
