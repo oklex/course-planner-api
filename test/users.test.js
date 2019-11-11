@@ -9,3 +9,9 @@ describe('Basic Mocha String Test', function () {
         //throw {myError:'throwing error to fail test'}
     });
 });
+
+describe('User items', () => {
+    it('should not permit a repeat email', () => {
+        assert.equal('true', 'true')
+    })
+})
