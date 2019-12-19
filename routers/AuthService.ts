@@ -63,12 +63,13 @@ router.get("/check", AuthMiddleware.checkToken, (req, res) => {
 });
 
 //dev only
-router.patch('/delete', (req, res) => {
-  db('users').del().catch((e) => {
+router.delete('/', (req, res) => {
+  db('users').del().then(() => {
+  return res.status(200).send("all test users deleted")
+  }).catch((e) => {
     console.log('deleting all users')
     return res.status(500).send(e.sqlMessage)
   })
-  return res.status(200).send("all test users deleted")
 })
 
 export default router;

@@ -38,4 +38,14 @@ router.get('/', (req, res) => {
     })
 })
 
+// delete for testing
+router.delete('/', AuthMiddleware.checkToken, (req, res) => {
+    db('planners').del().then(() => {
+        return res.status(200).send("all test planners deleted")
+    }).catch((e) => {
+        console.log('deleting all planners')
+        return res.status(500).send(e.sqlMessage)
+    })
+})
+
 export default router
