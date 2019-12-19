@@ -3,6 +3,7 @@ import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import AuthMiddleware from "../middleware/AuthMiddleware";
 import db from "../database/knex";
+import { getSchoolID } from "../utils/getSchoolCode";
 
 dotenv.config();
 const router = Router();
@@ -22,7 +23,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).send("email not registered; user must create an account")
     });
   if (password === truePassword) {
-    const token = jwt.sign({ email, password }, secretKey);
+  var school = getSchoolID(email)
+    const token = jwt.sign({ email, password, school}, secretKey);
     console.log("token is: ", token);
     return res.json({
       token: token
@@ -40,6 +42,7 @@ router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
     email: userEmail,
     password: password,
     newsletter: newsletter,
+    school: getSchoolID(userEmail),
     is_advisor: false
   })
     .into("users")
@@ -70,6 +73,10 @@ router.delete('/', (req, res) => {
     console.log('deleting all users')
     return res.status(500).send(e.sqlMessage)
   })
+})
+
+router.get('/', (req, res) => {
+  db('users').then(rows => res.send(rows)).catch((e)=>res.status(400).end())
 })
 
 export default router;

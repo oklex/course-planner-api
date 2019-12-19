@@ -4,6 +4,7 @@ exports.up = async knex => {
         .primary(['degree', 'major']);
       table.string("degree").notNull();
       table.string('major').notNull();
+      table.string('school').notNull()
     });
   };
   

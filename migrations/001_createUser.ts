@@ -6,6 +6,7 @@ exports.up = async knex => {
       .notNull();
     table.string("password").notNull();
     table.boolean('newsletter');
+    table.string('school').notNull()
     table.boolean('is_advisor');
   });
 };

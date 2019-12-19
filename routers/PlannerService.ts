@@ -12,18 +12,21 @@ const router = Router();
 router.post('/', [AuthMiddleware.checkToken, PlannerMiddleware.validateCreation], (req, res) => {
     let degree = req.body.degree
     let major = req.body.major
-    db('planners').insert({
-        degree: degree,
-        major: major
-    })
-        .then(rows => {
-            console.log('test POST success!', rows)
-            return res.status(200).send('test POST success!')
+    var decoded = req.decoded;
+    var school = decoded.school
+        db('planners').insert({
+            degree: degree,
+            major: major,
+            school: school
         })
-        .catch((e) => {
-            console.log(e.sqlMessage);
-            return res.status(400).send(e.sqlMessage)
-        })
+            .then(rows => {
+                console.log('test POST success!', rows)
+                return res.status(200).send('test POST success!')
+            })
+            .catch((e) => {
+                console.log(e.sqlMessage);
+                return res.status(400).send(e.sqlMessage)
+            })
 })
 
 // get all grad plans
