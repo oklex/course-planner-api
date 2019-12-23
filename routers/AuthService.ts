@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import AuthMiddleware from "../middleware/AuthMiddleware";
 import db from "../database/knex";
 import { getSchoolID } from "../utils/getSchoolCode";
+import isAdvisor from "../utils/isAdvisor";
 
 dotenv.config();
 const router = Router();
@@ -13,6 +14,9 @@ router.post("/login", async (req, res) => {
   var email: string = req.body.email;
   var inputPassword: string = req.body.password;
   var truePassword: string = ''
+  const school:string = getSchoolID(email)
+  const is_advisor:boolean = isAdvisor(email)
+  console.log(is_advisor)
   await db('users')
     .where({ email: email })
     .then(rows => {
@@ -23,8 +27,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).send("email not registered; user must create an account")
     });
   if (inputPassword === truePassword) {
-  var school = getSchoolID(email)
-    const token = jwt.sign({ email, school}, secretKey);
+  const token = jwt.sign({ email, school, is_advisor}, secretKey);
     console.log("token is: ", token);
     return res.json({
       token: token
@@ -35,22 +38,24 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
-  const userEmail: string = req.body.email;
+  const email: string = req.body.email;
   const password: string = req.body.password;
   const newsletter: boolean = req.body.newsletter === "true"
   const secretKey = process.env.SECRET_KEY;
+  const school:string = getSchoolID(email)
+  const is_advisor:boolean = isAdvisor(email)
+  console.log(is_advisor)
   db.insert({
-    email: userEmail,
+    email: email,
     password: password,
     newsletter: newsletter,
-    school: getSchoolID(userEmail),
-    is_advisor: false
+    school: school,
+    is_advisor: is_advisor
   })
     .into("users")
     .then(() => {
       console.log('sign-up complete');
-      var school = getSchoolID(userEmail)
-    const token = jwt.sign({ userEmail, school}, secretKey);
+    const token = jwt.sign({ email, school, is_advisor}, secretKey);
     console.log("token is: ", token);
     return res.json({
       token: token
@@ -62,6 +67,13 @@ router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
     })
 });
 
+router.get('/all', [AuthMiddleware.checkToken, AuthMiddleware.checkIfAdvisor], (req, res) => {
+  db('users').then(rows => res.send(rows)).catch((e)=>res.status(400).end())
+})
+
+/*
+DEV ONLY - delete later
+*/
 router.get("/check", AuthMiddleware.checkToken, (req, res) => {
   try {
     const decoded = req.decoded;
@@ -71,18 +83,13 @@ router.get("/check", AuthMiddleware.checkToken, (req, res) => {
   }
 });
 
-router.get('/', (req, res) => {
-  db('users').then(rows => res.send(rows)).catch((e)=>res.status(400).end())
+router.delete('/', (req, res) => {
+  db('users').del().then(() => {
+  return res.status(200).send("all test users deleted")
+  }).catch((e) => {
+    console.log('deleting all users')
+    return res.status(500).send(e.sqlMessage)
+  })
 })
-
-// //dev only
-// router.delete('/', (req, res) => {
-//   db('users').del().then(() => {
-//   return res.status(200).send("all test users deleted")
-//   }).catch((e) => {
-//     console.log('deleting all users')
-//     return res.status(500).send(e.sqlMessage)
-//   })
-// })
 
 export default router;
