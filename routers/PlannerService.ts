@@ -37,7 +37,7 @@ router.post("/",[AuthMiddleware.checkToken, PlannerMiddleware.validateCreation],
 );
 
 router.get("/all", (req, res) => {
-  // APPLY: pagination & search by: ...
+  // APPLY: pagination & search by: school, major, degree type, limit
   db("planners")
     .select()
     .then(rows => {
