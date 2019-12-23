@@ -9,6 +9,11 @@ import isAdvisor from "../utils/isAdvisor";
 dotenv.config();
 const router = Router();
 
+/* 
+REQUEST:
+  "email": "example@gmail.com",
+  "password": "password_123",
+*/
 router.post("/login", async (req, res) => {
   const secretKey = process.env.SECRET_KEY;
   var email: string = req.body.email;
@@ -37,6 +42,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/* 
+REQUEST
+  "email": "example@gmail.com",
+  "password": "password_123",
+*/
 router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
   const email: string = req.body.email;
   const password: string = req.body.password;
