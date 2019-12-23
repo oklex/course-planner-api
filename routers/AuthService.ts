@@ -11,7 +11,7 @@ const router = Router();
 router.post("/login", async (req, res) => {
   const secretKey = process.env.SECRET_KEY;
   var email: string = req.body.email;
-  var password: string = req.body.password;
+  var inputPassword: string = req.body.password;
   var truePassword: string = ''
   await db('users')
     .where({ email: email })
@@ -22,9 +22,9 @@ router.post("/login", async (req, res) => {
     .catch((e) => {
       return res.status(400).send("email not registered; user must create an account")
     });
-  if (password === truePassword) {
+  if (inputPassword === truePassword) {
   var school = getSchoolID(email)
-    const token = jwt.sign({ email, password, school}, secretKey);
+    const token = jwt.sign({ email, school}, secretKey);
     console.log("token is: ", token);
     return res.json({
       token: token
@@ -38,6 +38,7 @@ router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
   const userEmail: string = req.body.email;
   const password: string = req.body.password;
   const newsletter: boolean = req.body.newsletter === "true"
+  const secretKey = process.env.SECRET_KEY;
   db.insert({
     email: userEmail,
     password: password,
@@ -48,7 +49,12 @@ router.post("/signup", AuthMiddleware.checkSignUpInfo, async (req, res) => {
     .into("users")
     .then(() => {
       console.log('sign-up complete');
-      return res.send("sign-up complete")
+      var school = getSchoolID(userEmail)
+    const token = jwt.sign({ userEmail, school}, secretKey);
+    console.log("token is: ", token);
+    return res.json({
+      token: token
+    });
     })
     .catch((e) => {
       console.log(e.sqlMessage)
@@ -65,18 +71,18 @@ router.get("/check", AuthMiddleware.checkToken, (req, res) => {
   }
 });
 
-//dev only
-router.delete('/', (req, res) => {
-  db('users').del().then(() => {
-  return res.status(200).send("all test users deleted")
-  }).catch((e) => {
-    console.log('deleting all users')
-    return res.status(500).send(e.sqlMessage)
-  })
-})
-
 router.get('/', (req, res) => {
   db('users').then(rows => res.send(rows)).catch((e)=>res.status(400).end())
 })
+
+// //dev only
+// router.delete('/', (req, res) => {
+//   db('users').del().then(() => {
+//   return res.status(200).send("all test users deleted")
+//   }).catch((e) => {
+//     console.log('deleting all users')
+//     return res.status(500).send(e.sqlMessage)
+//   })
+// })
 
 export default router;

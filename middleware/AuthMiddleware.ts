@@ -47,8 +47,12 @@ export const AuthMiddleware = {
     } else {
       next()
     }
-  }
+  },
 
+  checkIfAdvisor: async (req, res, next) => {
+    // read from a list of authorized email accounts
+    // include an expiry date onto the auth list
+  }
 }
 
 export default AuthMiddleware;
